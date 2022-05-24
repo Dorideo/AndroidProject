@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     db.connect("10-B");
-
+                    db.addSubject("Android Lesson", "10-B");
                 }
             }
             catch(Exception e){
