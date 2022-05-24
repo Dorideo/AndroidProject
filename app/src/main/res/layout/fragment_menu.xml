@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MenuFragment">
+
+    <View
+        android:id="@+id/tintView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/usualColor"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/textViewBackground"
+        android:text="@string/journal"
+        android:textAlignment="center"
+        android:textColor="@color/TextColor"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/menuButton"
+        android:layout_width="64dp"
+        android:layout_height="45dp"
+        android:background="@color/textViewBackground"
+        android:contentDescription="@string/todo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@mipmap/burgermenu"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <ScrollView
+        android:id="@+id/menuScroll"
+        android:layout_width="290dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="45dp"
+        android:background="@color/usualColor"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="SpeakableTextPresentCheck">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/menuBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/aboutUsButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="648dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/about_us"
+                android:textColor="@color/buttonText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.8"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/SettingButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="566dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/settings"
+                android:textColor="@color/buttonText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/ClassButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/your_class"
+                android:textColor="@color/buttonText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/RegisterButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="86dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="Register"
+                android:textColor="@color/buttonText"
+                app:layout_constraintBottom_toBottomOf="@+id/aboutUsButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/magazineButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="168dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/magazine"
+                android:textColor="@color/buttonText"
+                app:layout_constraintBottom_toBottomOf="@+id/aboutUsButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/ClassesButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="332dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/classes"
+                android:textColor="@color/buttonText"
+                app:layout_constraintBottom_toBottomOf="@+id/aboutUsButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/YourScheduleButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="250dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/your_schedule"
+                android:textColor="@color/buttonText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/haveProblemsButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="730dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/buttonBackground"
+                android:text="@string/have_problems"
+                android:textColor="@color/buttonText"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</FrameLayout>
