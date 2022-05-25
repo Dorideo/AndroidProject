@@ -1,9 +1,13 @@
 package com.example.project.Calendar;
 
+import android.database.Cursor;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.example.project.DataBaseController.DatabaseController;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -14,6 +18,8 @@ public class Schedule {
     private ArrayList<Day> days;
     private DatabaseController db;
 
+    @RequiresApi(api = Build.VERSION_CODES.O
+    )
     public Schedule(String grade) throws SQLException {
         days = new ArrayList<>();
         db = DatabaseController.getInstance();
@@ -23,19 +29,25 @@ public class Schedule {
                     new String[]{"INT(255)", "VARCHAR(255)", "VARCHAR(50000)"});
         } catch (SQLException e) {
             e.printStackTrace();
-            ResultSet res = db.getDays();
-
-            while(res.next()){
-                Day day = new Day(res.getInt(1), res.getString(2));
-                String j = res.getString(3);
-                String json[] = j.split(" ");
+            Cursor res = db.getDays();
 
 
+            if(res.moveToFirst()) {
+                do {
+                    {
+                        Day day = new Day(res.getInt(0), res.getString(1));
+                        String j = res.getString(3);
+                        String json[] = j.split(" ");
 
-                for(int i = 0; i < json.length-1; i+=3){
 
-                    day.addWithoutChecking(new Lesson(json[i], Timestamp.valueOf(day.getDate() + " " +json[i+1] + ":00.00"), Integer.parseInt(json[i+2])));
+                        for (int i = 0; i < json.length - 1; i += 3) {
+
+                            day.addWithoutChecking(new Lesson(json[i], Timestamp.valueOf(day.getDate() + " " + json[i + 1] + ":00.00"), Integer.parseInt(json[i + 2])));
+                        }
+                    }
+
                 }
+                while (res.moveToNext());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -87,6 +99,7 @@ public class Schedule {
         return -1;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void compile(String grade) throws SQLException {
         LocalDate date = LocalDate.now();
         int currentDay = Calendar.getDayOfAWeek(1, 9, date.getYear()), currentYear = date.getYear();
@@ -145,6 +158,7 @@ public class Schedule {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void addEntry(String date, Lesson lesson) throws SQLException, IOException {
         for(Day day : days){
             if(day.getDate().equals(date)){

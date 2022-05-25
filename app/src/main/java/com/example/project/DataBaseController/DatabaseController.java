@@ -1,6 +1,6 @@
 package com.example.project.DataBaseController;
 
-import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 
@@ -8,53 +8,40 @@ import androidx.annotation.RequiresApi;
 
 import com.example.project.Calendar.Day;
 import com.example.project.Calendar.Lesson;
-import com.example.project.MainActivity;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
-public class DatabaseController {
+public class DatabaseController{
     private static DatabaseController controller = new DatabaseController();
     private ArrayList<String> subjects;
     private Connection connection = null;
     public static String currentGrade = "null";
-    public String path;
-    SQLiteDatabase db;
-        private DatabaseController(){
+    public String path = "/data/data/com.example.project/databases/";
+
+    private DatabaseController(){
         subjects = new ArrayList<>();
     }
+    public SQLiteDatabase database;
 
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void connect(String grade) throws SQLException, IOException {
 
-
-
             try {
-                db = MainActivity.activity.getBaseContext().openOrCreateDatabase(grade + ".db", Context.MODE_PRIVATE, null);
-                path = db.getPath();
-                String url = "jdbc:sqlite:" + path;
-
-                connection = DriverManager.getConnection(url);
-                if (connection != null) {
-                    System.out.println("A new database has been created.");
-
-
-            Statement statement = connection.createStatement();
-            String query = "CREATE TABLE STUDENTS(student_id INTEGER PRIMARY KEY AUTOINCREMENT, student_full_name VARCHAR, student_age VARCHAR);";
-            statement.execute(query);
-
-            statement.close(); }
+                database = SQLiteDatabase.openOrCreateDatabase(path + grade + ".db", null);
+                try {
+                    String query = "CREATE TABLE STUDENTS(student_id INTEGER PRIMARY KEY AUTOINCREMENT, student_full_name VARCHAR, student_age VARCHAR);";
+                    database.execSQL(query);
+                } catch (Exception e) {
+                    System.out.println("Table has already been created");
+                }
             }
-            catch (SQLException e) {
+
+            catch (Exception e) {
                 System.out.println(e);
             }
 
@@ -65,31 +52,34 @@ public class DatabaseController {
     public void createTable(String grade, String tableName, String[] values, String[] types) throws SQLException, IOException {
         if(!currentGrade.equals( grade)){
             this.connect(grade);
+
         }
 
-        StringBuilder stringBuilder = new StringBuilder("CREATE TABLE ").append(tableName).
-                append(String.format(" (%s %s", values[0], types[0]));
-        for(int i = 1; i < values.length; i++){
-            stringBuilder.append(String.format(", %s %s", values[i], types[i]));
-        }
-        stringBuilder.append(")");
+            StringBuilder stringBuilder = new StringBuilder("CREATE TABLE ").append(tableName).
+                    append(String.format(" (%s %s", values[0], types[0]));
+            for (int i = 1; i < values.length; i++) {
+                stringBuilder.append(String.format(", %s %s", values[i], types[i]));
+            }
+            stringBuilder.append(");");
 
-        String query = stringBuilder.toString();
-
-        Statement statement = connection.createStatement();
-
-        statement.execute(query);
-
-        statement.close();
+            String query = stringBuilder.toString();
+            try {
+                database.execSQL(query);
+            }
+            catch  (Exception e){
+                System.out.println("Table has already been created");
+            }
     }
 
     private void addStudents(String tableName) throws SQLException {
-        Statement statement = connection.createStatement();
-
-        ResultSet res = statement.executeQuery("SELECT student_id, student_full_name FROM STUDENTS");
-        while(res.next()) {
-            String v1 =  res.getString(1), v2 =  res.getString(2);
-            statement.execute(String.format("INSERT INTO %s (student_id, student_full_name) VALUES (%s, '%s')", tableName,v1,v2));
+        Cursor cursor = database.rawQuery("SELECT student_id, student_full_name FROM STUDENTS", null);
+        if(cursor.moveToFirst()) {
+            do {
+                String v1 = "" + cursor.getInt(0), v2 = cursor.getString(1);
+                database.execSQL(String.format("INSERT INTO %s (student_id, student_full_name) VALUES (%s, '%s')", tableName, v1, v2));
+                cursor.moveToNext();
+            }
+            while (cursor.isAfterLast());
         }
     }
 
@@ -98,22 +88,16 @@ public class DatabaseController {
         if(!grade.equals(currentGrade)){
             connect(grade);
         }
-        String query  = "INSERT INTO STUDENTS(student_full_name, student_age) " +
-                "VALUES(?, ?);";
+        String query  = String.format("INSERT INTO STUDENTS(student_full_name, student_age) VALUES('%s', '%s');"
+                , student.getFullName(), student.getAge());
 
 
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setObject(1, student.getFullName());
-        statement.setObject(2, student.getAge());
-        statement.execute();
+        database.execSQL(query);
 
-        Statement statement1 = connection.createStatement();
         for(String subject : subjects){
-            statement1.execute(String.format("INSERT INTO %s (student_full_name) VALUES ( '%s' )", subject,
+            database.execSQL(String.format("INSERT INTO %s (student_full_name) VALUES ( '%s' )", subject,
                     student.getFullName()));
         }
-
-        statement.close();
 
     }
 
@@ -123,10 +107,7 @@ public class DatabaseController {
             connect(grade);
         }
         String query = String.format("UPDATE %s SET %s = '%s' WHERE %s = %s", table, whatToChange,newValue, where, value);
-        Statement statement = connection.createStatement();
-        statement.execute(query);
-
-        statement.close();
+        database.execSQL(query);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -143,11 +124,9 @@ public class DatabaseController {
 
     private void createColumn(String table_name, String column_name, String data_type) throws SQLException {
         String query = String.format("ALTER TABLE %s ADD COLUMN '%s' %s", table_name, column_name, data_type);
-        Statement statement = connection.createStatement();
+        //if the column was created it will throw an exception
         try {
-            statement.execute(query);
-
-            statement.close();
+            database.execSQL(query);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -163,16 +142,12 @@ public class DatabaseController {
            createColumn(table_name, date, "INT(255)");
 
            String query = String.format("UPDATE %s SET %s = %d WHERE student_id = %d", table_name,date,record,id);
-           Statement statement = connection.createStatement();
 
-           statement.execute(query);
-
-           statement.close();
+           database.execSQL(query);
     }
 
-    public ResultSet getDays() throws SQLException {
-        Statement statement = connection.createStatement();
-        ResultSet res  = statement.executeQuery("SELECT * FROM SCHEDULE");
+    public Cursor getDays() throws SQLException {
+        Cursor res  = database.rawQuery("SELECT * FROM SCHEDULE", null);
         return res;
     }
 
@@ -180,13 +155,7 @@ public class DatabaseController {
         createColumn(lesson.getSubject(), date, "INT(255)");
     }
 
-    public Statement getStatement() throws SQLException {
-        return connection.createStatement();
-    }
-    public PreparedStatement getPreparedStatement(String query) throws SQLException {
-        return connection.prepareStatement(query);
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void addDay(Day day){
 
         DATAThread dataThread = new DATAThread(day);
@@ -200,9 +169,7 @@ public class DatabaseController {
             connect(grade);
         }
         String query = String.format("DELETE FROM %s WHERE %s = %s", table, where, value);
-        Statement statement = connection.createStatement();
-        statement.execute(query);
-        statement.close();
+        database.execSQL(query);
     }
 
     public static String getCurrentGrade() {
@@ -213,10 +180,8 @@ public class DatabaseController {
         return controller;
     }
 
-    public ResultSet Table(String tableName) throws SQLException {
-        Statement statement = connection.createStatement();
-
-        ResultSet res = statement.executeQuery(String.format("SELECT * FROM %s", tableName));
+    public Cursor Table(String tableName) throws SQLException {
+        Cursor res = database.rawQuery(String.format("SELECT * FROM %s", tableName), null);
         return res;
     }
     public ArrayList<String> getSubjects() throws SQLException {
@@ -224,15 +189,20 @@ public class DatabaseController {
 
         System.out.println();
 
-        ResultSet res = connection.getMetaData().getTables(null, null,
-                null, null);
+        Cursor c = database.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
-        while(res.next()){
-            String s = res.getString("TABLE_NAME");
-            if(!res.getString("TABLE_NAME").equals("STUDENTS") && !res.getString("TABLE_NAME").equals("Schedule")) {
-                str.add(res.getString("TABLE_NAME"));
+        if (c.moveToFirst()) {
+            while ( !c.isAfterLast() ) {
+                if(!c.getString(0).equals("STUDENTS") &&
+                        !c.getString(0).equals("android_metadata") &&
+                        !c.getString(0).equals("sqlite_sequence")){
+
+                    str.add(c.getString(0));
+                }
+                c.moveToNext();
             }
         }
+
 
         return str;
     }
@@ -243,14 +213,15 @@ public class DatabaseController {
             connect(grade);
         }
         ArrayList<String> columns = new ArrayList<>();
-        String sql = "select * from " + subject + " LIMIT 0";
-        Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery(sql);
-        ResultSetMetaData mrs = rs.getMetaData();
-        for(int i = 1; i <= mrs.getColumnCount(); i++) {
-            if(!mrs.getColumnLabel(i).equals("student_id") && !mrs.getColumnLabel(i).equals("student_full_name") && mrs.getColumnLabel(i).split("-")[1].equals(month))
-                columns.add(mrs.getColumnLabel(i));
+        Cursor dbCursor = database.query(subject, null, null, null, null, null, null);
+        String[] columnNames = dbCursor.getColumnNames();
+
+        for(String date : columnNames){
+            if(date.split("-")[1] == month){
+                columns.add(date);
+            }
         }
+
         return columns;
     }
 }

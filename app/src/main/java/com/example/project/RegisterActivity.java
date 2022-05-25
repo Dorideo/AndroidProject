@@ -9,20 +9,24 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.project.DataBaseController.DatabaseController;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class RegisterActivity extends AppCompatActivity {
-
     private TableLayout tableLayout;
     private TextView subject, month;
     private Button nextM, nextS, prevM, prevS;
     private ArrayList<String> subjects = new ArrayList<>();
     private int subIndex=0, monthIndex=0;
+    private String path;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,38 +34,42 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         DatabaseController db = DatabaseController.getInstance();
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    db.connect("10-B");
-                    db.addSubject("Android Lesson", "10-B");
+        try {
+
+            db.connect("10-C");
+
+
+            db.addSubject("AndroidLesson", "10-C");
+
+
+            subjects = db.getSubjects();
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
+
+        subject = findViewById(R.id.subject);
+        month = findViewById(R.id.monthName);
+        tableLayout = findViewById(R.id.table);
+        nextM = findViewById(R.id.nextMonth);
+        nextS = findViewById(R.id.nextSubject);
+        prevM = findViewById(R.id.previousMonth);
+
+        nextS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                subIndex++;
+                if(subIndex == subjects.size()){
+                    subIndex = 0;
                 }
+                subject.setText(subjects.get(subIndex));
             }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-
-
-
-
-            subject = findViewById(R.id.subject);
-            month = findViewById(R.id.monthName);
-            tableLayout = findViewById(R.id.table);
-            nextM = findViewById(R.id.nextMonth);
-            nextS = findViewById(R.id.nextSubject);
-            prevM = findViewById(R.id.previousMonth);
-            prevS = findViewById(R.id.previousSubject);
-
-            nextS.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    subIndex++;
-                    if(subIndex == subjects.size()){
-                        subIndex = 0;
-                    }
-
-                }
-            });
+        });
 
 
 
@@ -69,7 +77,13 @@ public class RegisterActivity extends AppCompatActivity {
             arr.add("col1");
             arr.add("col2");
 
-            setTable(arr);
+        try {
+            setTable(db.getDates("10-C", "AndroidLesson", "9"));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setTable(ArrayList<String> arr){

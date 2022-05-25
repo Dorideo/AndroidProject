@@ -1,9 +1,12 @@
 package com.example.project.DataBaseController;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.example.project.Calendar.Day;
 import com.example.project.Calendar.Lesson;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -16,19 +19,13 @@ public class DATAThread extends Thread{
         super.setPriority(MAX_PRIORITY);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void run(){
         try {
 
-            String query = "INSERT INTO SCHEDULE(name, date, lessons) VALUES(?, ?, ?);";
+            String query = String.format("INSERT INTO SCHEDULE(name, date, lessons) VALUES('%s', '%s', '%s');", day.getNum(), day.getDate(), day.lessonsToString());
 
-            PreparedStatement preparedStatement = db.getPreparedStatement(query);
-
-            preparedStatement.setObject(1, day.getNum());
-            preparedStatement.setObject(2, day.getDate());
-            preparedStatement.setObject(3, day.lessonsToString());
-            preparedStatement.execute();
-
-            preparedStatement.close();
+            db.database.execSQL(query);
 
             ArrayList<Lesson> lessons = day.getLesson();
 
